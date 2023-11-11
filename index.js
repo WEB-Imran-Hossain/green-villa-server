@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000;
@@ -29,6 +29,8 @@ async function run() {
         // rooms category data collection
         const roomsCollection = client.db("hotelBookings").collection("rooms");
         const bookingCollection = client.db("hotelBookings").collection("bookings");
+        const reviewsCollection = client.db("hotelBookings").collection("reviews");
+        
         app.get("/rooms", async (req, res) => {
             const cursor = roomsCollection.find();
             const result = await cursor.toArray();
@@ -57,7 +59,6 @@ async function run() {
             res.send(result);
         })
 
-
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
             console.log(booking);
@@ -65,7 +66,12 @@ async function run() {
             res.send(result);
         })
 
-
+        // reviews collection
+        app.get("/reviews", async (req, res) => {
+            const cursor = reviewsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
 
 
