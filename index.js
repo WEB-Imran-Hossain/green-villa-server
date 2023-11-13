@@ -2,12 +2,36 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const app = express()
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+app.use(
+    cors({
+        origin: ["http://localhost:5173/"],
+        credentials: true,
+    })
+);
 app.use(express.json());
+app.use(cookieParser());
+
+// verify middleware
+const verifyToken = (req, res, next) => {
+    const token = req?.cookies?.token;
+    if (!token) {
+        return res.status(401).send({ message: 'access denied' })
+    }
+    jwt.verify(token, process.env.TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'access denied' })
+        }
+        req.user = decoded;
+        next();
+    })
+}
+
 
 
 
@@ -31,6 +55,35 @@ async function run() {
         const bookingCollection = client.db("hotelBookings").collection("bookings");
         const reviewsCollection = client.db("hotelBookings").collection("reviews");
 
+        // JWT related API
+        app.post("/jwt", async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.TOKEN, {
+                expiresIn: "1h",
+            });
+
+            res
+                .cookie("token", token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+                })
+                .send({ auth: true });
+        });
+
+        // Clear cokkie API
+        app.post('/logout', async (req, res) => {
+            const user = req.body;
+            res.clearCookie('token', { maxAge: 0, secure: true, sameSite: "none" }).send({ clear: true })
+        })
+
+
+
+
+
+
+
+        // All Get related API
         app.get("/rooms", async (req, res) => {
             const cursor = roomsCollection.find();
             const result = await cursor.toArray();
@@ -41,7 +94,7 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const options = {
-                projection: { roomCategory: 1, description: 1, pricePerNight: 1, imageLg: 1, facilities: 1, roomSize: 1, availability: 1, specialOffers: 1, unavailableRoomInfo: 1, nextAvailableDate: 1, reasonForUnavailability: 1, reviews: 1, bookingDuration: 1, roomSummary: 1, maxPerson: 1  },
+                projection: { roomCategory: 1, description: 1, pricePerNight: 1, imageLg: 1, facilities: 1, roomSize: 1, availability: 1, specialOffers: 1, unavailableRoomInfo: 1, nextAvailableDate: 1, reasonForUnavailability: 1, reviews: 1, bookingDuration: 1, roomSummary: 1, maxPerson: 1 },
             };
 
             const result = await roomsCollection.findOne(query, options);
