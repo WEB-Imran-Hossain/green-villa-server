@@ -41,7 +41,7 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const options = {
-                projection: { roomCategory: 1, description: 1, pricePerNight: 1, imageLg: 1 },
+                projection: { roomCategory: 1, description: 1, pricePerNight: 1, imageLg: 1, facilities: 1, roomSize: 1, availability: 1, specialOffers: 1, unavailableRoomInfo: 1, nextAvailableDate: 1, reasonForUnavailability: 1, reviews: 1, bookingDuration: 1, roomSummary: 1, maxPerson: 1  },
             };
 
             const result = await roomsCollection.findOne(query, options);
