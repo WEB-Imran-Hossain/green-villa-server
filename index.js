@@ -82,6 +82,20 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/rooms/:id", async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const identifier = req.body
+      const updatedData = {
+        $set: {
+          status: identifier.status
+        }
+      }
+      const result = await roomsCollection.updateOne(filter, updatedData)
+      // console.log(id);
+      res.send(result)
+    })
+
     app.get("/rooms/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -134,12 +148,36 @@ async function run() {
       res.send(result);
     });
 
-    // booking form collection
-    app.get("/bookings", async (req, res) => {
-      const cursor = bookingCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
+    // // Booking Delete method
+    // app.put('/bookings/:id', async (req, res) => {
+    //   const updatedBooking = req.body;
+    // })
+
+    // // Booking Update methode
+    // app.patch('/bookings/:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) }
+    //   const updatedBooking = req.body;
+    //   console.log(updatedBooking);
+    //   const updateDoc = {
+    //     $set: {
+    //       status: updatedBooking.status
+    //     },
+    //   };
+    //   const result = await bookingCollection.updateOne(filter, updateDoc);
+    //   res.send(result);
+    // })
+
+
+    // app.delete('/bookings/:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) }
+    //   const result = await bookingCollection.deleteOne(query)
+    //   res.send(result);
+    // })
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
