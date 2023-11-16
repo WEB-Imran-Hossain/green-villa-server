@@ -50,6 +50,8 @@ async function run() {
     const roomsCollection = client.db("hotelBookings").collection("rooms");
     const bookingCollection = client.db("hotelBookings").collection("bookings");
     const reviewsCollection = client.db("hotelBookings").collection("reviews");
+    const testimonialsCollection = client.db("hotelBookings").collection("testimonials");
+
 
     // JWT related API
     app.post("/jwt", async (req, res) => {
@@ -116,6 +118,7 @@ async function run() {
           bookingDuration: 1,
           roomSummary: 1,
           maxPerson: 1,
+          status: 1,
         },
       };
 
@@ -153,6 +156,13 @@ async function run() {
     // reviews collection
     app.get("/reviews", async (req, res) => {
       const cursor = reviewsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // testimonials collection
+    app.get("/testimonials", async (req, res) => {
+      const cursor = testimonialsCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
