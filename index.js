@@ -141,6 +141,15 @@ async function run() {
       res.send(result);
     });
 
+    // getting single booking
+    app.get("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingCollection.findOne(query);
+      res.send(result);
+    });
+
     // reviews collection
     app.get("/reviews", async (req, res) => {
       const cursor = reviewsCollection.find();
@@ -148,35 +157,37 @@ async function run() {
       res.send(result);
     });
 
-    // // Booking Delete method
-    // app.put('/bookings/:id', async (req, res) => {
-    //   const updatedBooking = req.body;
-    // })
+    // review post methode
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      // console.log(review);
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
 
-    // // Booking Update methode
-    // app.patch('/bookings/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: new ObjectId(id) }
-    //   const updatedBooking = req.body;
-    //   console.log(updatedBooking);
-    //   const updateDoc = {
-    //     $set: {
-    //       status: updatedBooking.status
-    //     },
-    //   };
-    //   const result = await bookingCollection.updateOne(filter, updateDoc);
-    //   res.send(result);
-    // })
+    // Booking data delete
+    app.delete('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await bookingCollection.deleteOne(query)
+      res.send(result);
+    })
 
-
-    // app.delete('/bookings/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: new ObjectId(id) }
-    //   const result = await bookingCollection.deleteOne(query)
-    //   res.send(result);
-    // })
-
-
+    // Booking Update methode
+    app.patch('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedBooking = req.body;
+      console.log(updatedBooking);
+      const updateDoc = {
+        $set: {
+          checkingDate: updatedBooking.checkingDate,
+          checkOutdate: updatedBooking.checkOutdate
+        },
+      };
+      const result = await bookingCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
 
 
     // Send a ping to confirm a successful connection
